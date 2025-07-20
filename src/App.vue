@@ -35,14 +35,13 @@
           Далее
         </button>
       </div>
-    </transition>
-
       <div v-else key="result" class="card result-card">
         <h2 class="result-title">Результат:</h2>
         <p><strong>Оптимальный режим:</strong> {{ getProgram(primary) }}</p>
         <p><strong>Альтернативный режим:</strong> {{ getProgram(secondary) }}</p>
         <button @click="reset" class="btn reset-btn">Пройти заново</button>
       </div>
+    </transition>
   </div>
 </template>
 
