@@ -3,7 +3,16 @@
     <h1 class="title">Подбор физической тренировки</h1>
 
     <transition name="fade" mode="out-in" appear>
-      <div v-if="step < questions.length" key="question" class="card">
+      <div v-if="showIntro" key="intro" class="card intro-card">
+        <p class="intro-text">
+          Программа для персонализированного подбора<br />
+          вида, интенсивности и продолжительности физической тренировки<br />
+          для пациентки, страдающей раком молочной железы.
+        </p>
+        <button @click="start" class="btn">Начать</button>
+      </div>
+
+      <div v-else-if="step < questions.length" key="question" class="card">
         <p class="progress">Вопрос {{ step + 1 }} из {{ questions.length }}</p>
         <p class="question-text">{{ questions[step].text }}</p>
 
@@ -35,6 +44,7 @@
           Далее
         </button>
       </div>
+
       <div v-else key="result" class="card result-card">
         <h2 class="result-title">Результат:</h2>
         <p><strong>Оптимальный режим:</strong> {{ getProgram(primary) }}</p>
@@ -49,9 +59,14 @@
 import { ref, computed } from 'vue'
 import { questions } from './questions.js'
 
+const showIntro = ref(true)
 const step = ref(0)
 const answers = ref(Array(questions.length).fill(null))
 const scores = ref({ A: 0, B: 0, C: 0, D: 0 })
+
+const start = () => {
+  showIntro.value = false
+}
 
 const next = () => {
   const selected = questions[step.value].options[answers.value[step.value]].values
@@ -63,6 +78,7 @@ const next = () => {
 }
 
 const reset = () => {
+  showIntro.value = true
   step.value = 0
   answers.value = Array(questions.length).fill(null)
   scores.value = { A: 0, B: 0, C: 0, D: 0 }
@@ -107,14 +123,13 @@ body {
   align-items: center;
   min-height: 100vh;
   width: 100vw;
-  overflow: auto; /* чтобы при переполнении не ломалась вёрстка */
+  overflow: auto;
   user-select: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
 }
 
-/* Основной контейнер, реально по центру и крупный */
 .container {
   position: absolute;
   top: 50%;
@@ -124,22 +139,15 @@ body {
   max-width: 95vw;
   background: #fff;
   border-radius: 16px;
-  box-shadow:
-      0 4px 24px rgba(0, 0, 0, 0.12),
-      0 8px 32px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 8px 32px rgba(0, 0, 0, 0.06);
   color: #222;
-
   display: flex;
   flex-direction: column;
   padding: 3.5rem 3rem;
-
-  /* высота по контенту */
-  /* max-height: 90vh; */
   margin: auto;
   flex-shrink: 0;
 }
 
-/* Заголовок — крупный и жирный */
 .title {
   text-align: center;
   font-weight: 800;
@@ -149,7 +157,6 @@ body {
   user-select: text;
 }
 
-/* Контент вопросов / результата */
 .card {
   flex: 1 1 auto;
   overflow: visible;
@@ -157,7 +164,6 @@ body {
   transition: all 0.5s ease;
 }
 
-/* Прогресс */
 .progress {
   font-weight: 700;
   color: #4b5563;
@@ -165,7 +171,6 @@ body {
   font-size: 1.3rem;
 }
 
-/* Вопрос */
 .question-text {
   font-size: 1.8rem;
   margin-bottom: 2rem;
@@ -174,7 +179,6 @@ body {
   user-select: text;
 }
 
-/* Варианты ответа — большие и удобные */
 .option-label {
   position: relative;
   display: flex;
@@ -198,14 +202,12 @@ body {
   border: 2px solid #3b82f6;
 }
 
-/* Скрываем стандартный input */
 .radio-input {
   opacity: 0;
   position: absolute;
   pointer-events: none;
 }
 
-/* Кастомные радиокнопки */
 .custom-radio {
   width: 24px;
   height: 24px;
@@ -214,7 +216,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* position: relative; */
   flex-shrink: 0;
   transition: border-color 0.3s ease;
 }
@@ -225,14 +226,12 @@ body {
 
 .option-label.checked .custom-radio::after {
   content: "";
-  position: static;
   width: 12px;
   height: 12px;
   background-color: #2563eb;
   border-radius: 50%;
 }
 
-/* Кнопки */
 .btn {
   display: inline-block;
   padding: 1rem 2.5rem;
@@ -247,7 +246,7 @@ body {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
   margin-top: 1rem;
-  align-self: flex-start; /* чтобы не растягивалась */
+  align-self: flex-start;
 }
 
 .btn:hover:not(.disabled) {
@@ -263,13 +262,11 @@ body {
   color: #dbeafe;
 }
 
-/* Кнопка "Пройти заново" с дополнительным отступом сверху */
 .reset-btn {
   margin-top: 3.5rem;
   align-self: center;
 }
 
-/* Результат */
 .result-card {
   text-align: center;
   font-size: 1.6rem;
@@ -283,7 +280,35 @@ body {
   user-select: text;
 }
 
-/* Плавное появление вопросов/результата */
+/* Интро */
+.intro-card {
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+.intro-text {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.8rem;
+  user-select: text;
+}
+
+.start-btn {
+  align-self: center;
+  padding: 1.2rem 3rem;
+  font-size: 1.5rem;
+  background-color: #10b981;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.start-btn:hover {
+  background-color: #059669;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.5);
+}
+
+/* Анимация */
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.5s ease;
@@ -301,7 +326,7 @@ body {
   transform: translateY(0);
 }
 
-/* Адаптив для узких экранов и малой высоты */
+/* Адаптив */
 @media (max-width: 720px), (max-height: 650px) {
   .container {
     width: 90vw;
@@ -355,7 +380,6 @@ body {
   }
 }
 
-/* Глобальные базовые анимации */
 * {
   transition: all 0.3s ease;
 }
